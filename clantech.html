@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>클랜 기술 계산기</title>
+<style>
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background-color: #f4f5f7;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    line-height: 1.6;
+    z-index: 100;
+  }
+  .highlight-potion { color: #2ecc71; font-size: 1.3em; }
+  .highlight-progress { color: #3498db; font-size: 1.3em; }
+  
+  .category-section {
+    background: #e9eaee;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+  }
+  .category-title {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px 10px;
+  }
+  .skill-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .skill-icon {
+    width: 65px;
+    height: 65px;
+    background-color: #82a8d4;
+    border: 3px solid #222;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.75em;
+    font-weight: bold;
+    text-align: center;
+    word-break: keep-all;
+    padding: 2px;
+    box-sizing: border-box;
+    transition: transform 0.1s;
+  }
+  .skill-icon:active {
+    transform: scale(0.95);
+  }
+  .skill-level {
+    font-weight: 800;
+    background: #fff;
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 2px solid #222;
+    font-size: 0.9em;
+  }
+  .max-level {
+    color: #e74c3c;
+  }
+</style>
+</head>
+<body>
+
+<div class="sticky-header">
+  총 필요 녹색 물약: <span id="total-potion" class="highlight-potion">0</span> 개<br>
+  총 연구 수치 획득: <span id="total-progress" class="highlight-progress">0.000</span> %
+</div>
+
+<div id="skill-container"></div>
+
+<script>
+  // 1. 데이터 설정 영역 (이 부분만 수정하시면 됩니다)
+  // category: 탭 이름 / name: 임시 이름 / max: 최대 레벨 / cost: 1렙당 물약 / progress: 1렙당 연구수치
+  const skillsData = [
+    // --- 전투력 탭 (알려주신 기준 적용) ---
+    { category: "전투력", id: "p1", name: "무기", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p2", name: "헬멧", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p3", name: "갑옷", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p4", name: "신발", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p5", name: "장갑", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p6", name: "벨트", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p7", name: "목걸이", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p8", name: "반지", current: 0, max: 20, cost: 304, progress: 0.075 },
+    { category: "전투력", id: "p9", name: "관통력", current: 0, max: 20, cost: 150, progress: 0.075 }, // 임의 설정
+    { category: "전투력", id: "p10", name: "치명타", current: 0, max: 20, cost: 150, progress: 0.075 },
+    { category: "전투력", id: "p11", name: "체력", current: 0, max: 20, cost: 150, progress: 0.075 },
+    { category: "전투력", id: "p12", name: "회피", current: 0, max: 20, cost: 150, progress: 0.075 },
+    { category: "전투력", id: "p13", name: "흡혈", current: 0, max: 20, cost: 150, progress: 0.075 },
+
+    // --- 알 타이머 탭 (이미지 기반 임의 생성) ---
+    { category: "알 타이머", id: "e1", name: "일반알", current: 0, max: 60, cost: 50, progress: 0.075 },
+    { category: "알 타이머", id: "e2", name: "고급알", current: 0, max: 60, cost: 60, progress: 0.075 },
+    { category: "알 타이머", id: "e3", name: "희귀알", current: 0, max: 60, cost: 70, progress: 0.075 },
+    { category: "알 타이머", id: "e4", name: "영웅알", current: 0, max: 60, cost: 80, progress: 0.075 },
+    { category: "알 타이머", id: "e5", name: "전설알", current: 0, max: 60, cost: 90, progress: 0.075 },
+    { category: "알 타이머", id: "e6", name: "신화알", current: 0, max: 60, cost: 100, progress: 0.075 },
+
+    // --- 특수 탭 ---
+    { category: "특수", id: "s1", name: "대장간", current: 0, max: 2, cost: 500, progress: 0.075 },
+    { category: "특수", id: "s2", name: "속도업", current: 0, max: 20, cost: 200, progress: 0.075 },
+    { category: "특수", id: "s3", name: "신발업", current: 0, max: 20, cost: 200, progress: 0.075 },
+    { category: "특수", id: "s4", name: "조준경", current: 0, max: 3, cost: 800, progress: 0.075 },
+
+    // --- 클랜 전쟁 탭 (일부만 예시로 작성) ---
+    { category: "클랜 전쟁", id: "w1", name: "공격력", current: 0, max: 10, cost: 400, progress: 0.075 },
+    { category: "클랜 전쟁", id: "w2", name: "방어력", current: 0, max: 10, cost: 400, progress: 0.075 },
+    { category: "클랜 전쟁", id: "w3", name: "체력", current: 0, max: 10, cost: 400, progress: 0.075 },
+    { category: "클랜 전쟁", id: "w4", name: "전술", current: 0, max: 10, cost: 400, progress: 0.075 },
+    
+    // --- 던전 탭 ---
+    { category: "던전", id: "d1", name: "보스뎀", current: 0, max: 10, cost: 350, progress: 0.075 },
+    { category: "던전", id: "d2", name: "보스체", current: 0, max: 10, cost: 350, progress: 0.075 },
+    
+    // --- 클랜 기술 물약 탭 ---
+    { category: "클랜 기술 물약", id: "c_p1", name: "물약생산", current: 0, max: 20, cost: 1000, progress: 0.075 },
+    { category: "클랜 기술 물약", id: "c_p2", name: "연구속도", current: 0, max: 20, cost: 1000, progress: 0.075 }
+  ];
+
+  // 2. UI 렌더링 로직
+  const container = document.getElementById("skill-container");
+  
+  // 카테고리별로 데이터 그룹화
+  const categories = [...new Set(skillsData.map(s => s.category))];
+  
+  categories.forEach(cat => {
+    const section = document.createElement("div");
+    section.className = "category-section";
+    
+    const title = document.createElement("div");
+    title.className = "category-title";
+    title.innerText = cat;
+    section.appendChild(title);
+    
+    const grid = document.createElement("div");
+    grid.className = "grid-container";
+    
+    const catSkills = skillsData.filter(s => s.category === cat);
+    
+    catSkills.forEach(skill => {
+      const node = document.createElement("div");
+      node.className = "skill-node";
+      // 우클릭 시 브라우저 메뉴 뜨는 것 방지
+      node.oncontextmenu = (e) => { e.preventDefault(); return false; };
+      
+      const icon = document.createElement("div");
+      icon.className = "skill-icon";
+      icon.innerText = skill.name;
+      
+      const levelLabel = document.createElement("div");
+      levelLabel.className = "skill-level";
+      levelLabel.id = `label-${skill.id}`;
+      levelLabel.innerText = `${skill.current}/${skill.max}`;
+      
+      // 클릭 이벤트 (좌클릭 증가, 우클릭 감소)
+      node.addEventListener("mousedown", (e) => {
+        if (e.button === 0) { // 좌클릭
+          if (skill.current < skill.max) skill.current++;
+        } else if (e.button === 2) { // 우클릭
+          if (skill.current > 0) skill.current--;
+        }
+        updateUI();
+      });
+      
+      node.appendChild(icon);
+      node.appendChild(levelLabel);
+      grid.appendChild(node);
+    });
+    
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+
+  // 게임 내 존재하는 기술의 총 레벨 수 (이전 계산값 1306 적용)
+  // 나중에 게임 업데이트로 기술이 추가되면 이 숫자만 수정하시면 됩니다.
+  const TOTAL_GAME_LEVELS = 1306; 
+
+  // 3. 총합 계산 및 텍스트 업데이트 로직
+  function updateUI() {
+    let totalPotion = 0;
+    let totalCurrentLevels = 0; // 현재 찍은 스킬 레벨의 총합
+
+    skillsData.forEach(skill => {
+      // 해당 스킬의 라벨 업데이트
+      const label = document.getElementById(`label-${skill.id}`);
+      label.innerText = `${skill.current}/${skill.max}`;
+      
+      if(skill.current === skill.max) {
+        label.classList.add("max-level");
+      } else {
+        label.classList.remove("max-level");
+      }
+
+      // 누적 물약 소모량 계산
+      totalPotion += skill.current * skill.cost;
+      
+      // 누적 레벨 합산
+      totalCurrentLevels += skill.current; 
+    });
+
+    // 전체 진행도 퍼센트 계산: (현재 누적 레벨 / 전체 게임 레벨) * 100
+    let totalProgress = (totalCurrentLevels / TOTAL_GAME_LEVELS) * 100;
+
+    // 헤더에 총합 반영 (게임 UI처럼 소수점 둘째 자리까지 표기)
+    document.getElementById("total-potion").innerText = totalPotion.toLocaleString();
+    document.getElementById("total-progress").innerText = totalProgress.toFixed(2); 
+  }
+
+  
+  }
+
+  // 초기 렌더링 시 총합 0으로 세팅
+  updateUI();
+
+</script>
+</body>
+</html>
