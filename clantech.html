@@ -56,6 +56,14 @@
     cursor: pointer;
     -webkit-touch-callout: none;
   }
+  /* 스킬 이름 상단 표기용 CSS 추가 */
+  .skill-name {
+    font-size: 0.85em;
+    font-weight: 800;
+    margin-bottom: 6px;
+    text-align: center;
+    word-break: keep-all;
+  }
   .skill-icon {
     width: 65px;
     height: 65px;
@@ -66,14 +74,8 @@
     background-position: center;
     background-repeat: no-repeat;
     margin-bottom: 8px;
-    transition: transform 0.1s;
+    transition: transform 0.1s, background-image 0.2s; /* 이미지 전환 부드럽게 */
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 13px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
   }
   .skill-icon:active {
     transform: scale(0.95);
@@ -92,7 +94,6 @@
     transform: scale(0.95);
   }
   .max-level { color: #e74c3c; }
-  /* 내 레벨(Base) 상태일 때 시각적 피드백 */
   .base-level { border-color: #999; color: #666; } 
 </style>
 </head>
@@ -110,18 +111,16 @@
 <script>
   const TOTAL_GAME_LEVELS = 1306; 
 
-  // ⭐️ 데이터 설정 영역 ⭐️ (여기에 백업해둔 데이터를 넣으세요)
-  // current에 적힌 숫자가 '내 현재 스펙(최소치)'이 됩니다.
   const skillsData = [
-    { category: "전투력", id: "p1", name: "무기", img: "weapon.png", current: 0, max: 20, cost: 304 }, // 예시로 10렙 기입
-    { category: "전투력", id: "p2", name: "헬멧", img: "helmet.png", current: 0, max: 20, cost: 304 },  // 예시로 5렙 기입
+    { category: "전투력", id: "p1", name: "무기", img: "weapon.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p2", name: "헬멧", img: "helmet.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p3", name: "갑옷", img: "armor.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p4", name: "신발", img: "shoes.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p5", name: "장갑", img: "glove.png", current: 0, max: 20, cost: 304 }, 
     { category: "전투력", id: "p6", name: "벨트", img: "belt.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p7", name: "목걸이", img: "necklace.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p8", name: "반지", img: "ring.png", current: 0, max: 20, cost: 304 },
-    { category: "전투력", id: "p9", name: "스킬피해", img: "skill_power.png", current: 0, max: 20, cost: 1215 }, // 
+    { category: "전투력", id: "p9", name: "스킬피해", img: "skill_power.png", current: 0, max: 20, cost: 1215 },
     { category: "전투력", id: "p10", name: "펫 피해", img: "pet_power.png", current: 0, max: 20, cost: 608 },
     { category: "전투력", id: "p11", name: "펫 체력", img: "pet_hp.png", current: 0, max: 20, cost: 608 },
     { category: "전투력", id: "p12", name: "탈것 피해", img: "tal_power.png", current: 0, max: 20, cost: 608 },
@@ -182,7 +181,6 @@
     { category: "클랜 녹즙", id: "g6", name: "레이스 기부 증가", img: "g6.png", current: 20, max: 20, cost: 608 }  
   ];
 
-  // 시스템 초기화: 스크립트가 실행될 때 current 값을 base(최소치)로 복사해둡니다.
   skillsData.forEach(skill => {
     skill.base = skill.current; 
   });
@@ -208,22 +206,20 @@
       const node = document.createElement("div");
       node.className = "skill-node";
       
+      // 이름 라벨 상단 생성
+      const nameLabel = document.createElement("div");
+      nameLabel.className = "skill-name";
+      nameLabel.innerText = skill.name;
+
       const icon = document.createElement("div");
       icon.className = "skill-icon";
-      if(skill.img) {
-        icon.style.backgroundImage = `url('./${skill.img}')`;
-        icon.style.color = "transparent";
-        icon.innerText = skill.name;
-      } else {
-        icon.innerText = skill.name;
-      }
+      icon.id = `icon-${skill.id}`; // ⭐️ 이미지 변경을 위해 고유 ID 부여
       
       const levelLabel = document.createElement("div");
       levelLabel.className = "skill-level";
       levelLabel.id = `label-${skill.id}`;
       levelLabel.innerText = `${skill.current}/${skill.max}`;
       
-      // 1. PC 우클릭 & 모바일 롱터치 시 -> 레벨 다운 (base 이하로는 안 내려감)
       node.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         if (skill.current > skill.base) {
@@ -232,7 +228,6 @@
         }
       });
       
-      // 2. 동그라미 아이콘 터치 시 -> 레벨 업
       icon.addEventListener("click", (e) => {
         if (skill.current < skill.max) {
           skill.current++;
@@ -240,7 +235,6 @@
         }
       });
       
-      // 3. 아래쪽 숫자 라벨 터치 시 -> 레벨 다운 (base 이하로는 안 내려감)
       levelLabel.addEventListener("click", (e) => {
         e.stopPropagation();
         if (skill.current > skill.base) {
@@ -249,6 +243,7 @@
         }
       });
       
+      node.appendChild(nameLabel); // ⭐️ 이름을 아이콘 위(먼저)에 추가
       node.appendChild(icon);
       node.appendChild(levelLabel);
       grid.appendChild(node);
@@ -259,24 +254,33 @@
   });
 
   function updateUI() {
-    let requiredPotion = 0; // '추가로' 필요한 물약
-    let totalCurrentLevels = 0; // 최종 달성할 레벨 합계
-    let addedLevels = 0; // 새로 올린 레벨 합계
+    let requiredPotion = 0; 
+    let totalCurrentLevels = 0; 
+    let addedLevels = 0; 
 
     skillsData.forEach(skill => {
       const label = document.getElementById(`label-${skill.id}`);
-      label.innerText = `${skill.current}/${skill.max}`;
+      const icon = document.getElementById(`icon-${skill.id}`);
       
-      // 스타일 초기화
+      label.innerText = `${skill.current}/${skill.max}`;
       label.classList.remove("max-level", "base-level");
       
+      // ⭐️ 만렙 여부에 따른 텍스트 색상 및 이미지 전환 처리
       if(skill.current === skill.max) {
-        label.classList.add("max-level"); // 만렙 시 빨간 글씨
-      } else if(skill.current === skill.base) {
-        label.classList.add("base-level"); // 최소치(내 스펙) 상태일 때 회색 테두리
+        label.classList.add("max-level"); 
+        if(skill.img) {
+          let fullImgName = skill.img.replace('.png', '_full.png'); // 원본명_full.png 로 변경
+          icon.style.backgroundImage = `url('./${fullImgName}')`;
+        }
+      } else {
+        if(skill.current === skill.base) {
+          label.classList.add("base-level"); 
+        }
+        if(skill.img) {
+          icon.style.backgroundImage = `url('./${skill.img}')`; // 만렙이 아닐 땐 다시 원본
+        }
       }
 
-      // 새로 올린 레벨만큼만 물약 비용 계산
       let upLevels = skill.current - skill.base;
       requiredPotion += upLevels * skill.cost;
       addedLevels += upLevels;
@@ -292,7 +296,6 @@
     document.getElementById("added-progress-info").innerText = `(+${addedProgress.toFixed(3)}% 상승)`;
   }
 
-  // 첫 화면 렌더링
   updateUI();
 </script>
 </body>
