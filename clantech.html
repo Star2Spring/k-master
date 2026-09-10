@@ -27,6 +27,7 @@
     font-weight: bold;
     z-index: 100;
   }
+  .highlight-give { color: #ff0000; font-size: 1.3em; }
   .highlight-potion { color: #2ecc71; font-size: 1.3em; }
   .highlight-progress { color: #3498db; font-size: 1.3em; }
   .added-info { font-size: 0.8em; color: #888; font-weight: normal; margin-top: 5px; }
@@ -98,6 +99,7 @@
 <body>
 
 <div class="sticky-header">
+  추가 필요 기부: <span id="total-give" class="highlight-give">0</span> 개<br>
   추가 필요 녹색 물약: <span id="total-potion" class="highlight-potion">0</span> 개<br>
   최종 도달 진행도: <span id="total-progress" class="highlight-progress">0.00</span> %
   <div class="added-info" id="added-progress-info">(+0.00% 상승)</div>
@@ -130,7 +132,53 @@
     { category: "알 타이머", id: "e3", name: "서사", img: "egg3.png", current: 0, max: 60, cost: 135 },
     { category: "알 타이머", id: "e4", name: "전설", img: "egg4.png", current: 0, max: 60, cost: 135 },
     { category: "알 타이머", id: "e5", name: "궁극", img: "egg5.png", current: 0, max: 60, cost: 135 },
-    { category: "알 타이머", id: "e6", name: "신화", img: "egg6.png", current: 0, max: 60, cost: 135 }
+    { category: "알 타이머", id: "e6", name: "신화", img: "egg6.png", current: 0, max: 60, cost: 135 },
+
+    { category: "특수", id: "s1", name: "제련 망치수", img: "ham1.png", current: 0, max: 2, cost: 6080 },
+    { category: "특수", id: "s2", name: "제련 속도", img: "ham2.png", current: 0, max: 20, cost: 608 },
+    { category: "특수", id: "s3", name: "이동 속도", img: "speed.png", current: 0, max: 20, cost: 608 },
+    { category: "특수", id: "s4", name: "공격 범위", img: "range.png", current: 0, max: 3, cost: 4056 },
+
+    { category: "클랜 전쟁", id: "c1", name: "제련 포인트", img: "c1.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c2", name: "스킬 소환", img: "c2.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c3", name: "스킬 강화", img: "c3.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c4", name: "기술 트리", img: "c4.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c5", name: "대장간 강화", img: "c5.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c6", name: "던전 열쇠", img: "c6.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c7", name: "알 부화", img: "c7.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c8", name: "펫 합체", img: "c8.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c9", name: "탈것 소환", img: "c9.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c10", name: "1일차", img: "c10.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c11", name: "2일차", img: "c11.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c12", name: "3일차", img: "c12.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c13", name: "4일차", img: "c13.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c14", name: "5일차", img: "c14.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c15", name: "6일차", img: "c15.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c16", name: "클전 피해", img: "c16.png", current: 0, max: 100, cost: 246 },
+    { category: "클랜 전쟁", id: "c17", name: "클전 체력", img: "c17.png", current: 0, max: 100, cost: 246 },
+    { category: "클랜 전쟁", id: "c18", name: "클전 개인 보상", img: "c18.png", current: 0, max: 10, cost: 1622 },
+    { category: "클랜 전쟁", id: "c19", name: "클전 승리 보상", img: "c19.png", current: 0, max: 10, cost: 1622 },
+    { category: "클랜 전쟁", id: "c20", name: "클전 패배 보상", img: "c20.png", current: 0, max: 10, cost: 1622 },    
+
+    { category: "클랜 임무", id: "m1", name: "임무 피해", img: "miss_power.png", current: 0, max: 20, cost: 304 },
+    { category: "클랜 임무", id: "m2", name: "임무 체력", img: "miss_hp.png", current: 0, max: 20, cost: 304 },
+    { category: "클랜 임무", id: "m3", name: "임무 보상", img: "miss_reword.png", current: 0, max: 10, cost: 1215 },
+
+    { category: "던전", id: "d1", name: "해머 던전 피해", img: "ham_dun_power.png", current: 0, max: 10, cost: 973 },
+    { category: "던전", id: "d2", name: "해머 던전 체력", img: "ham_dun_hp.png", current: 0, max: 10, cost: 973 },
+    { category: "던전", id: "d3", name: "유령 던전 피해", img: "skill_dun_power.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d4", name: "유령 던전 체력", img: "skill_dun_hp.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d5", name: "침공 던전 피해", img: "egg_dun_power.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d6", name: "침공 던전 체력", img: "egg_dun_hp.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d7", name: "좀비 던전 피해", img: "zombie_dun_power.png", current: 0, max: 10, cost: 487 },  
+    { category: "던전", id: "d8", name: "좀비 던전 체력", img: "zombie_dun_hp.png", current: 0, max: 10, cost: 487 },   
+    
+    { category: "클랜 녹즙", id: "g1", name: "임무 녹즙", img: "g1.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g2", name: "개인 보상 녹즙", img: "g2.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g3", name: "클전 승리 녹즙", img: "g3.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g4", name: "클전 패배 녹즙", img: "g4.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g5", name: "레이스 보상 증가", img: "g5.png", current: 0, max: 20, cost: 608 },  
+    { category: "클랜 녹즙", id: "g6", name: "레이스 기부 증가", img: "g6.png", current: 0, max: 20, cost: 608 }  
   ];
 
   // 시스템 초기화: 스크립트가 실행될 때 current 값을 base(최소치)로 복사해둡니다.
@@ -237,7 +285,8 @@
     let totalProgress = (totalCurrentLevels / TOTAL_GAME_LEVELS) * 100;
     let addedProgress = (addedLevels / TOTAL_GAME_LEVELS) * 100;
 
-    document.getElementById("total-potion").innerText = requiredPotion.toLocaleString();
+    document.getElementById("total-give").innerText = requiredPotion.toLocaleString();
+    document.getElementById("total-potion").innerText = (requiredPotion*2).toLocaleString();
     document.getElementById("total-progress").innerText = totalProgress.toFixed(2); 
     document.getElementById("added-progress-info").innerText = `(+${addedProgress.toFixed(3)}% 상승)`;
   }
