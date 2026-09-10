@@ -25,6 +25,7 @@
     font-weight: bold;
     z-index: 100;
   }
+  .highlight-give { color: #ff0000; font-size: 1.3em; }
   .highlight-potion { color: #2ecc71; font-size: 1.3em; }
   .highlight-progress { color: #3498db; font-size: 1.3em; }
   
@@ -85,6 +86,7 @@
 <body>
 
 <div class="sticky-header">
+  총 필요 기부: <span id="total-give" class="highlight-potion">0</span> 개<br>
   총 필요 녹색 물약: <span id="total-potion" class="highlight-potion">0</span> 개<br>
   전체 진행도: <span id="total-progress" class="highlight-progress">0.00</span> %
 </div>
@@ -105,6 +107,8 @@
     { category: "전투력", id: "p6", name: "벨트", img: "belt.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p7", name: "목걸이", img: "necklace.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p8", name: "반지", img: "ring.png", current: 0, max: 20, cost: 304 }
+
+     { category: "부랄타이머", id: "p8", name: "일반", img: "helmet.png", current: 0, max: 20, cost: 304 }
     // 아래에 추가하실 때도 img: "이미지이름.png" 형식으로 넣어주시면 됩니다.
   ];
 
@@ -186,7 +190,8 @@
     });
 
     let totalProgress = (totalCurrentLevels / TOTAL_GAME_LEVELS) * 100;
-    document.getElementById("total-potion").innerText = totalPotion.toLocaleString();
+    document.getElementById("total-give").innerText = totalPotion.toLocaleString();
+    document.getElementById("total-potion").innerText = (totalPotion*2).toLocaleString();
     document.getElementById("total-progress").innerText = totalProgress.toFixed(2); 
   }
 
