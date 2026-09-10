@@ -269,7 +269,8 @@
       if(skill.current === skill.max) {
         label.classList.add("max-level"); 
         if(skill.img) {
-          let fullImgName = skill.img.replace('.png', '_full.png'); // 원본명_full.png 로 변경
+          // let fullImgName = skill.img.replace('.png', '_full.png'); 원본명_full.png 로 변경 근데 지금 메일이 안보내져서 나중에 해야됨
+          let fullImgName = skill.img.replace('.png', '.png'); // 원본명_full.png 로 변경 근데 지금 메일이 안보내져서 나중에 해야됨
           icon.style.backgroundImage = `url('./${fullImgName}')`;
         }
       } else {
