@@ -111,14 +111,26 @@
   // ⭐️ 데이터 설정 영역 ⭐️ (여기에 백업해둔 데이터를 넣으세요)
   // current에 적힌 숫자가 '내 현재 스펙(최소치)'이 됩니다.
   const skillsData = [
-    { category: "전투력", id: "p1", name: "무기", img: "weapon.png", current: 10, max: 20, cost: 304 }, // 예시로 10렙 기입
-    { category: "전투력", id: "p2", name: "헬멧", img: "helmet.png", current: 5, max: 20, cost: 304 },  // 예시로 5렙 기입
+    { category: "전투력", id: "p1", name: "무기", img: "weapon.png", current: 0, max: 20, cost: 304 }, // 예시로 10렙 기입
+    { category: "전투력", id: "p2", name: "헬멧", img: "helmet.png", current: 0, max: 20, cost: 304 },  // 예시로 5렙 기입
     { category: "전투력", id: "p3", name: "갑옷", img: "armor.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p4", name: "신발", img: "shoes.png", current: 0, max: 20, cost: 304 },
-    { category: "전투력", id: "p5", name: "장갑", img: "glove.png", current: 20, max: 20, cost: 304 }, // 이미 만렙인 경우
+    { category: "전투력", id: "p5", name: "장갑", img: "glove.png", current: 0, max: 20, cost: 304 }, 
     { category: "전투력", id: "p6", name: "벨트", img: "belt.png", current: 0, max: 20, cost: 304 },
     { category: "전투력", id: "p7", name: "목걸이", img: "necklace.png", current: 0, max: 20, cost: 304 },
-    { category: "전투력", id: "p8", name: "반지", img: "ring.png", current: 0, max: 20, cost: 304 }
+    { category: "전투력", id: "p8", name: "반지", img: "ring.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p9", name: "스킬피해", img: "skill_power.png", current: 0, max: 20, cost: 1215 }, // 
+    { category: "전투력", id: "p10", name: "펫 피해", img: "pet_power.png", current: 0, max: 20, cost: 608 },
+    { category: "전투력", id: "p11", name: "펫 체력", img: "pet_hp.png", current: 0, max: 20, cost: 608 },
+    { category: "전투력", id: "p12", name: "탈것 피해", img: "tal_power.png", current: 0, max: 20, cost: 608 },
+    { category: "전투력", id: "p13", name: "탈것 체력", img: "tal_hp.png", current: 0, max: 20, cost: 608 },
+
+    { category: "알 타이머", id: "e1", name: "일반", img: "egg1.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e2", name: "희귀", img: "egg2.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e3", name: "서사", img: "egg3.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e4", name: "전설", img: "egg4.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e5", name: "궁극", img: "egg5.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e6", name: "신화", img: "egg6.png", current: 0, max: 60, cost: 135 }
   ];
 
   // 시스템 초기화: 스크립트가 실행될 때 current 값을 base(최소치)로 복사해둡니다.
