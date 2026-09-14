@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>클랜 테크 계산</title>
+<style>
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background-color: #f4f5f7;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    z-index: 100;
+  }
+  .highlight-give { color: #ff0000; font-size: 1.3em; }
+  .highlight-potion { color: #2ecc71; font-size: 1.3em; }
+  .highlight-progress { color: #3498db; font-size: 1.3em; }
+  .added-info { font-size: 0.8em; color: #888; font-weight: normal; margin-top: 5px; }
+  
+  .category-section {
+    background: #e9eaee;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+  }
+  .category-title {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px 10px;
+  }
+  .skill-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+  }
+  /* 스킬 이름 상단 표기용 CSS 추가 */
+  .skill-name {
+    font-size: 0.85em;
+    font-weight: 800;
+    margin-bottom: 6px;
+    text-align: center;
+    word-break: keep-all;
+  }
+  .skill-icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    border: 3px solid #222;
+    background-color: #82a8d4;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 8px;
+    transition: transform 0.1s, background-image 0.2s; /* 이미지 전환 부드럽게 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  .skill-icon:active {
+    transform: scale(0.95);
+  }
+  .skill-level {
+    font-weight: 800;
+    background: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 2px solid #222;
+    font-size: 0.9em;
+    transition: background-color 0.1s;
+  }
+  .skill-level:active {
+    background-color: #ffcccc;
+    transform: scale(0.95);
+  }
+  .max-level { color: #e74c3c; }
+  .base-level { border-color: #999; color: #666; } 
+</style>
+</head>
+<body>
+
+<div class="sticky-header">
+  추가 필요 기부: <span id="total-give" class="highlight-give">0</span> 개<br>
+  추가 필요 녹색 물약: <span id="total-potion" class="highlight-potion">0</span> 개<br>
+  최종 도달 진행도: <span id="total-progress" class="highlight-progress">0.00</span> %
+  <div class="added-info" id="added-progress-info">(+0.00% 상승)</div>
+</div>
+
+<div id="skill-container"></div>
+
+<script>
+  const TOTAL_GAME_LEVELS = 1306; 
+
+  const skillsData = [
+    { category: "전투력", id: "p1", name: "무기", img: "combat_1.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p2", name: "헬멧", img: "combat_2.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p3", name: "갑옷", img: "combat_3.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p4", name: "신발", img: "combat_4.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p5", name: "장갑", img: "combat_5.png", current: 0, max: 20, cost: 304 }, 
+    { category: "전투력", id: "p6", name: "벨트", img: "combat_6.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p7", name: "목걸이", img: "combat_7.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p8", name: "반지", img: "combat_8.png", current: 0, max: 20, cost: 304 },
+    { category: "전투력", id: "p9", name: "스킬피해", img: "combat_9.png", current: 0, max: 20, cost: 1215 },
+    { category: "전투력", id: "p10", name: "펫 피해", img: "combat_10.png", current: 0, max: 20, cost: 608 },
+    { category: "전투력", id: "p11", name: "펫 체력", img: "combat_11.png", current: 0, max: 20, cost: 608 },
+    { category: "전투력", id: "p12", name: "탈것 피해", img: "combat_12.png", current: 0, max: 20, cost: 608 },
+    { category: "전투력", id: "p13", name: "탈것 체력", img: "combat_13.png", current: 0, max: 20, cost: 608 },
+
+    { category: "알 타이머", id: "e1", name: "일반", img: "egg_1.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e2", name: "희귀", img: "egg_2.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e3", name: "서사", img: "egg_3.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e4", name: "전설", img: "egg_4.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e5", name: "궁극", img: "egg_5.png", current: 0, max: 60, cost: 135 },
+    { category: "알 타이머", id: "e6", name: "신화", img: "egg_6.png", current: 0, max: 60, cost: 135 },
+
+    { category: "특수", id: "s1", name: "제련 망치수", img: "special_1.png", current: 0, max: 2, cost: 6080 },
+    { category: "특수", id: "s2", name: "제련 속도", img: "special_2.png", current: 0, max: 20, cost: 608 },
+    { category: "특수", id: "s3", name: "이동 속도", img: "special_3.png", current: 0, max: 20, cost: 608 },
+    { category: "특수", id: "s4", name: "공격 범위", img: "special_4.png", current: 0, max: 3, cost: 4056 },
+
+    { category: "클랜 전쟁", id: "c1", name: "제련 포인트", img: "war_1.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c2", name: "스킬 소환", img: "war_2.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c3", name: "스킬 강화", img: "war_3.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c4", name: "기술 트리", img: "war_4.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c5", name: "대장간 강화", img: "war_5.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c6", name: "던전 열쇠", img: "war_6.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c7", name: "알 부화", img: "war_7.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c8", name: "펫 합체", img: "war_8.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c9", name: "탈것 소환", img: "war_9.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c10", name: "탈것 합체", img: "war_10.png", current: 0, max: 10, cost: 243 },
+    { category: "클랜 전쟁", id: "c11", name: "1일차", img: "war_11.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c12", name: "2일차", img: "war_12.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c13", name: "3일차", img: "war_13.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c14", name: "4일차", img: "war_14.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c15", name: "5일차", img: "war_15.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c16", name: "6일차", img: "war_16.png", current: 0, max: 10, cost: 405 },
+    { category: "클랜 전쟁", id: "c17", name: "클전 피해", img: "war_17.png", current: 0, max: 100, cost: 246 },
+    { category: "클랜 전쟁", id: "c18", name: "클전 체력", img: "war_18.png", current: 0, max: 100, cost: 246 },
+    { category: "클랜 전쟁", id: "c19", name: "클전 개인 보상", img: "war_19.png", current: 0, max: 10, cost: 1622 },
+    { category: "클랜 전쟁", id: "c20", name: "클전 승리 보상", img: "war_20.png", current: 0, max: 10, cost: 1622 },
+    { category: "클랜 전쟁", id: "c21", name: "클전 패배 보상", img: "war_21.png", current: 0, max: 10, cost: 1622 },    
+
+    { category: "클랜 임무", id: "m1", name: "임무 피해", img: "miss_1.png", current: 0, max: 20, cost: 304 },
+    { category: "클랜 임무", id: "m2", name: "임무 체력", img: "miss_2.png", current: 0, max: 20, cost: 304 },
+    { category: "클랜 임무", id: "m3", name: "임무 보상", img: "miss_3.png", current: 0, max: 10, cost: 1215 },
+
+    { category: "던전", id: "d1", name: "해머 던전 피해", img: "dungeon_1.png", current: 0, max: 10, cost: 973 },
+    { category: "던전", id: "d2", name: "해머 던전 체력", img: "dungeon_2.png", current: 0, max: 10, cost: 973 },
+    { category: "던전", id: "d3", name: "유령 던전 피해", img: "dungeon_3.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d4", name: "유령 던전 체력", img: "dungeon_4.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d5", name: "침공 던전 피해", img: "dungeon_5.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d6", name: "침공 던전 체력", img: "dungeon_6.png", current: 0, max: 10, cost: 487 },
+    { category: "던전", id: "d7", name: "좀비 던전 피해", img: "dungeon_7.png", current: 0, max: 10, cost: 487 },  
+    { category: "던전", id: "d8", name: "좀비 던전 체력", img: "dungeon_8.png", current: 0, max: 10, cost: 487 },   
+    
+    { category: "클랜 녹즙", id: "g1", name: "임무      녹즙", img: "potion_1.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g2", name: "개인 보상 녹즙", img: "potion_2.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g3", name: "클전 승리 녹즙", img: "potion_3.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g4", name: "클전 패배 녹즙", img: "potion_4.png", current: 0, max: 20, cost: 608 },
+    { category: "클랜 녹즙", id: "g5", name: "레이스 보상 증가", img: "potion_5.png", current: 0, max: 20, cost: 608 },  
+    { category: "클랜 녹즙", id: "g6", name: "레이스 기부 증가", img: "potion_6.png", current: 0, max: 20, cost: 608 }  
+  ];
+
+  skillsData.forEach(skill => {
+    skill.base = skill.current; 
+  });
+
+  const container = document.getElementById("skill-container");
+  const categories = [...new Set(skillsData.map(s => s.category))];
+  
+  categories.forEach(cat => {
+    const section = document.createElement("div");
+    section.className = "category-section";
+    
+    const title = document.createElement("div");
+    title.className = "category-title";
+    title.innerText = cat;
+    section.appendChild(title);
+    
+    const grid = document.createElement("div");
+    grid.className = "grid-container";
+    
+    const catSkills = skillsData.filter(s => s.category === cat);
+    
+    catSkills.forEach(skill => {
+      const node = document.createElement("div");
+      node.className = "skill-node";
+      
+      // 이름 라벨 상단 생성
+      const nameLabel = document.createElement("div");
+      nameLabel.className = "skill-name";
+      nameLabel.innerText = skill.name;
+
+      const icon = document.createElement("div");
+      icon.className = "skill-icon";
+      icon.id = `icon-${skill.id}`; // ⭐️ 이미지 변경을 위해 고유 ID 부여
+      
+      const levelLabel = document.createElement("div");
+      levelLabel.className = "skill-level";
+      levelLabel.id = `label-${skill.id}`;
+      levelLabel.innerText = `${skill.current}/${skill.max}`;
+      
+      node.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        if (skill.current > skill.base) {
+          skill.current--;
+          updateUI();
+        }
+      });
+      
+      icon.addEventListener("click", (e) => {
+        if (skill.current < skill.max) {
+          skill.current++;
+          updateUI();
+        }
+      });
+      
+      levelLabel.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (skill.current > skill.base) {
+          skill.current--;
+          updateUI();
+        }
+      });
+      
+      node.appendChild(nameLabel); // ⭐️ 이름을 아이콘 위(먼저)에 추가
+      node.appendChild(icon);
+      node.appendChild(levelLabel);
+      grid.appendChild(node);
+    });
+    
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+
+  function updateUI() {
+    let requiredPotion = 0; 
+    let totalCurrentLevels = 0; 
+    let addedLevels = 0; 
+
+    skillsData.forEach(skill => {
+      const label = document.getElementById(`label-${skill.id}`);
+      const icon = document.getElementById(`icon-${skill.id}`);
+      
+      label.innerText = `${skill.current}/${skill.max}`;
+      label.classList.remove("max-level", "base-level");
+      
+      // ⭐️ 만렙 여부에 따른 텍스트 색상 및 이미지 전환 처리
+      if(skill.current === skill.max) {
+        label.classList.add("max-level"); 
+        if(skill.img) {
+          let fullImgName = skill.img.replace('.png', '_full.png'); // 원본명_full.png 로 변경 근데 지금 메일이 안보내져서 나중에 해야됨
+          //let fullImgName = skill.img.replace('.png', '.png'); // 원본명_full.png 로 변경 근데 지금 메일이 안보내져서 나중에 해야됨
+          icon.style.backgroundImage = `url('./${fullImgName}')`;
+        }
+      } else {
+        if(skill.current === skill.base) {
+          label.classList.add("base-level"); 
+        }
+        if(skill.img) {
+          icon.style.backgroundImage = `url('./${skill.img}')`; // 만렙이 아닐 땐 다시 원본
+        }
+      }
+
+      let upLevels = skill.current - skill.base;
+      requiredPotion += upLevels * skill.cost;
+      addedLevels += upLevels;
+      totalCurrentLevels += skill.current; 
+    });
+
+    let totalProgress = (totalCurrentLevels / TOTAL_GAME_LEVELS) * 100;
+    let addedProgress = (addedLevels / TOTAL_GAME_LEVELS) * 100;
+
+    document.getElementById("total-give").innerText = requiredPotion.toLocaleString();
+    document.getElementById("total-potion").innerText = (requiredPotion*2).toLocaleString();
+    document.getElementById("total-progress").innerText = totalProgress.toFixed(2); 
+    document.getElementById("added-progress-info").innerText = `(+${addedProgress.toFixed(3)}% 상승)`;
+  }
+
+  updateUI();
+</script>
+</body>
+</html>
